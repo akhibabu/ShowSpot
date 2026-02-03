@@ -55,3 +55,14 @@ To provide a fast, simple, and reliable ticket booking platform dedicated exclus
 - Database: PostgreSQL
 - Containerization: Docker
 
+- ## Quick Start – Local Development
+
+### Prerequisites
+- Docker Desktop
+
+### Steps
+```bash
+docker build -t showspot .
+docker run -p 8080:80 showspot
+
+
