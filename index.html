@@ -1,10 +1,705 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>ShowSpot</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ShowSpot</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#1d5c3a;--green-dark:#163f28;--green-light:#e8f5ee;
+  --gold:#e8b04b;--gold-dark:#c8922a;--gold-light:#fdf3dc;
+  --gray:#adb5bd;--bg:#f5f3ee;--white:#fff;
+  --text:#1a1a1a;--muted:#6c757d;--border:#e0ddd6;
+  --red:#ef4444;--red-light:#fee2e2;--red-dark:#991b1b;
+  --blue:#0ea5e9;--blue-light:#e0f2fe;
+  --r:12px;--shadow:0 2px 12px rgba(0,0,0,.07);--shadow-lg:0 8px 40px rgba(0,0,0,.13);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.hidden{display:none!important;}
+input,select,button{font-family:inherit;}
+
+/* ─── ROLE SELECT ─────────────────────────────────── */
+#rolePage{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px;}
+.role-card{background:var(--white);border-radius:24px;padding:52px 48px;box-shadow:var(--shadow-lg);width:480px;max-width:100%;text-align:center;}
+.role-logo{width:58px;height:58px;background:var(--green);border-radius:15px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:26px;font-weight:900;color:#fff;}
+.role-title{font-family:'DM Serif Display',serif;font-size:30px;margin-bottom:8px;}
+.role-sub{color:var(--muted);font-size:15px;margin-bottom:36px;line-height:1.5;}
+.role-options{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.role-btn{background:var(--white);border:2px solid var(--border);border-radius:16px;padding:28px 20px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:12px;}
+.role-btn:hover{border-color:var(--green);background:var(--green-light);transform:translateY(-3px);box-shadow:0 8px 24px rgba(29,92,58,.12);}
+.role-btn.admin-btn:hover{border-color:var(--gold-dark);background:var(--gold-light);box-shadow:0 8px 24px rgba(200,146,42,.12);}
+.role-icon{width:52px;height:52px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:24px;}
+.ri-green{background:var(--green-light);}
+.ri-gold{background:var(--gold-light);}
+.role-btn-title{font-size:16px;font-weight:700;}
+.role-btn-sub{font-size:12px;color:var(--muted);line-height:1.4;}
+
+/* ─── AUTH SHARED ─────────────────────────────────── */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:20px;}
+.auth-card{background:var(--white);border-radius:22px;padding:48px 42px;box-shadow:var(--shadow-lg);width:450px;max-width:100%;}
+.auth-logo{width:52px;height:52px;background:var(--green);border-radius:13px;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:22px;font-weight:900;color:#fff;}
+.auth-title{font-family:'DM Serif Display',serif;font-size:26px;text-align:center;margin-bottom:4px;}
+.auth-sub{color:var(--muted);font-size:14px;text-align:center;margin-bottom:26px;line-height:1.5;}
+.auth-tabs{display:flex;background:#f0ede8;border-radius:10px;padding:4px;margin-bottom:26px;gap:4px;}
+.auth-tab{flex:1;padding:9px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted);transition:all .2s;}
+.auth-tab.active{background:var(--white);color:var(--text);box-shadow:0 1px 5px rgba(0,0,0,.1);}
+.field{margin-bottom:14px;}
+.field label{font-size:11px;font-weight:700;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);}
+.field input{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;background:var(--white);}
+.field input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(29,92,58,.07);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field-row .field{margin-bottom:0;}
+.iw{position:relative;}
+.iw input{padding-right:42px;}
+.eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);padding:3px;display:flex;}
+.eye:hover{color:var(--text);}
+.al{border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:12px;display:none;align-items:center;gap:7px;}
+.al.show{display:flex;}
+.al-e{background:var(--red-light);color:var(--red-dark);}
+.al-s{background:#d1fae5;color:#065f46;}
+.btn-auth{width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s;margin-top:4px;}
+.btn-auth:hover{background:var(--green-dark);}
+.auth-foot{text-align:center;font-size:13px;color:var(--muted);margin-top:16px;}
+.auth-foot a{color:var(--green);font-weight:600;cursor:pointer;}
+.back-role{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--muted);cursor:pointer;background:none;border:none;margin-bottom:20px;padding:0;}
+.back-role:hover{color:var(--text);}
+.pw-bars{display:flex;gap:3px;margin-top:5px;}
+.pw-bar{flex:1;height:3px;border-radius:2px;background:var(--border);transition:background .3s;}
+.pw-bar.weak{background:var(--red);}
+.pw-bar.fair{background:var(--gold);}
+.pw-bar.strong{background:var(--green);}
+.pw-lbl{font-size:11px;color:var(--muted);margin-top:3px;}
+
+/* ─── TOP NAV ─────────────────────────────────────── */
+.topnav{position:fixed;top:0;left:0;right:0;z-index:80;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:60px;box-shadow:0 1px 8px rgba(0,0,0,.05);}
+.nav-logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:17px;cursor:pointer;}
+.nav-logo-icon{width:32px;height:32px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:900;}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-av{width:35px;height:35px;border-radius:50%;background:var(--green-light);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;}
+.nav-name{font-weight:600;font-size:14px;}
+.nav-btn{background:none;border:1.5px solid var(--border);border-radius:50px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text);transition:all .2s;}
+.nav-btn:hover{border-color:var(--green);color:var(--green);}
+
+/* ─── EVENTS ──────────────────────────────────────── */
+#eventsPage{max-width:1280px;margin:0 auto;padding:90px 40px 60px;}
+#eventsPage h1{font-family:'DM Serif Display',serif;font-size:44px;margin-bottom:6px;}
+.subtitle{color:var(--muted);font-size:15px;margin-bottom:30px;}
+.search-bar{position:relative;margin-bottom:26px;}
+.search-bar svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);}
+.search-bar input{width:100%;padding:13px 16px 13px 45px;border:1.5px solid var(--border);border-radius:50px;font-size:14px;background:var(--white);outline:none;transition:border-color .2s;box-shadow:var(--shadow);}
+.search-bar input:focus{border-color:var(--green);}
+.filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:34px;}
+.filter-btn{padding:7px 17px;border-radius:50px;border:1.5px solid var(--border);background:var(--white);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;color:var(--text);}
+.filter-btn.active{background:var(--green);border-color:var(--green);color:#fff;}
+.filter-btn:hover:not(.active){border-color:var(--green);color:var(--green);}
+.events-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+@media(max-width:960px){.events-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.events-grid{grid-template-columns:1fr;}}
+.event-card{background:var(--white);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s;cursor:pointer;}
+.event-card:hover{transform:translateY(-5px);box-shadow:0 12px 32px rgba(0,0,0,.13);}
+.ev-img{height:185px;background:linear-gradient(135deg,#e0ded8,#ccc9c0);position:relative;display:flex;align-items:center;justify-content:center;font-size:52px;opacity:.65;}
+.cat-badge{position:absolute;top:12px;right:12px;background:var(--gold);color:#1a1a1a;font-size:11px;font-weight:700;padding:4px 11px;border-radius:50px;}
+.ev-body{padding:18px;}
+.ev-body h3{font-size:16px;font-weight:700;margin-bottom:11px;line-height:1.3;}
+.ev-meta{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.ev-meta-row{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);}
+.ev-footer{display:flex;align-items:center;justify-content:space-between;padding-top:13px;border-top:1px solid var(--border);}
+.price-lbl{font-size:11px;color:var(--muted);margin-bottom:2px;}
+.price{font-size:21px;font-weight:700;}
+.btn-book{background:var(--green);color:#fff;border:none;padding:10px 18px;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s;}
+.btn-book:hover{background:var(--green-dark);}
+.seats-tag{font-size:11px;font-weight:600;padding:3px 8px;border-radius:50px;background:var(--green-light);color:var(--green);}
+.seats-tag.low{background:#fff0e0;color:#c05d00;}
+
+/* ─── SEATS ───────────────────────────────────────── */
+.seat-hero{background:#0e1a14;color:#fff;padding:26px 40px;}
+.seat-hero h2{font-family:'DM Serif Display',serif;font-size:30px;margin-bottom:12px;}
+.seat-hero-meta{display:flex;gap:26px;flex-wrap:wrap;}
+.seat-hero-meta span{display:flex;align-items:center;gap:7px;font-size:13px;opacity:.85;}
+.seat-content{max-width:1100px;margin:0 auto;padding:32px 40px;display:grid;grid-template-columns:1fr 295px;gap:28px;align-items:start;}
+@media(max-width:800px){.seat-content{grid-template-columns:1fr;}}
+.seat-card{background:var(--white);border-radius:var(--r);padding:26px;box-shadow:var(--shadow);}
+.seat-legend{display:flex;gap:18px;margin-bottom:20px;flex-wrap:wrap;}
+.seat-legend-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);}
+.leg-dot{width:14px;height:14px;border-radius:3px;}
+.leg-a{background:var(--green);}.leg-s{background:var(--gold);}.leg-b{background:var(--gray);}
+.stage{background:#f0ede8;border:1.5px solid var(--border);text-align:center;padding:11px;border-radius:7px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:24px;}
+.seat-grid{overflow-x:auto;}
+.seat-row{display:flex;align-items:center;gap:5px;margin-bottom:5px;}
+.row-lbl{width:18px;text-align:center;font-size:10px;font-weight:600;color:var(--muted);flex-shrink:0;}
+.s-btn{border-radius:4px;border:none;cursor:pointer;transition:transform .12s;flex-shrink:0;}
+.s-btn.av{background:var(--green);}.s-btn.av:hover{transform:scale(1.12);opacity:.85;}
+.s-btn.sel{background:var(--gold);}.s-btn.bk{background:var(--gray);cursor:not-allowed;}
+.sum-card{background:var(--white);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);position:sticky;top:22px;}
+.sum-card h3{font-size:16px;font-weight:700;margin-bottom:4px;}
+.sum-hint{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;margin-bottom:18px;}
+.sum-div{height:1px;background:var(--border);margin:14px 0;}
+.sum-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:9px;}
+.sum-row .sl{color:var(--muted);}
+.sum-total{display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-top:6px;}
+.sum-total .ta{color:var(--green);font-size:19px;}
+.btn-proceed{width:100%;margin-top:18px;padding:13px;background:var(--green);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;}
+.btn-proceed:hover{background:var(--green-dark);}
+.btn-proceed:disabled{background:var(--gray);cursor:not-allowed;}
+.back-link{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:#fff;cursor:pointer;opacity:.85;background:none;border:none;padding:0;}
+.back-link:hover{opacity:1;}
+.back-dark{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--muted);cursor:pointer;background:none;border:none;margin-bottom:22px;padding:0;}
+.back-dark:hover{color:var(--text);}
+
+/* ─── PAYMENT ─────────────────────────────────────── */
+.pay-grid{display:grid;grid-template-columns:305px 1fr;gap:26px;align-items:start;}
+@media(max-width:760px){.pay-grid{grid-template-columns:1fr;}}
+.pay-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);}
+.pay-sum{padding:22px;}
+.pay-form{padding:26px;}
+.pay-ev-img{width:100%;height:125px;border-radius:7px;margin-bottom:14px;background:linear-gradient(135deg,#e0ded8,#ccc);display:flex;align-items:center;justify-content:center;font-size:46px;opacity:.65;}
+.pay-ev-meta{font-size:12px;color:var(--muted);line-height:1.8;margin-bottom:18px;}
+.pay-rows{border-top:1px solid var(--border);padding-top:14px;}
+.pay-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:9px;}
+.pay-row .pl{color:var(--muted);}
+.pay-div{height:1px;background:var(--border);margin:10px 0;}
+.pay-total{display:flex;justify-content:space-between;font-weight:700;font-size:14px;}
+.pay-total .ta{color:var(--green);font-size:17px;}
+.sec-title{font-size:16px;font-weight:700;margin-bottom:18px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.fg label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);}
+.fg input{padding:11px 13px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;outline:none;transition:border-color .2s;}
+.fg input:focus{border-color:var(--green);}
+.sec-div{height:1px;background:var(--border);margin:22px 0;}
+.pay-methods{display:flex;gap:10px;margin-bottom:20px;}
+.pm-btn{flex:1;padding:11px 12px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;background:var(--white);}
+.pm-btn.active{background:var(--gold);border-color:var(--gold);}
+.pm-btn:hover:not(.active){border-color:var(--green);}
+.btn-pay{width:100%;padding:15px;background:var(--green);color:#fff;border:none;border-radius:9px;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .2s;margin-top:6px;}
+.btn-pay:hover{background:var(--green-dark);}
+
+/* ─── CONFIRM ─────────────────────────────────────── */
+.conf-icon{width:64px;height:64px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+.conf-card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;text-align:left;}
+.c-bid{background:var(--gold);padding:15px 22px;}
+.c-bid .bl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;}
+.c-bid .bv{font-size:21px;font-weight:700;}
+.c-body{padding:22px;}
+.c-evname{font-size:19px;font-weight:700;margin-bottom:12px;}
+.c-meta{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);margin-bottom:7px;}
+.c-div{height:1px;background:var(--border);margin:16px 0;}
+.c-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.c-fl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;}
+.c-fv{font-size:14px;font-weight:600;}
+.c-prow{display:flex;justify-content:space-between;font-size:13px;margin-bottom:7px;}
+.c-prow .cp{color:var(--muted);}
+.c-trow{display:flex;justify-content:space-between;font-weight:700;font-size:14px;border-top:1px solid var(--border);padding-top:11px;margin-top:3px;}
+.c-trow .cta{color:var(--green);font-size:17px;}
+.c-email{background:var(--gold-light);border-radius:7px;padding:13px 15px;margin:16px 0;font-size:12px;line-height:1.6;}
+.c-actions{display:flex;gap:11px;padding:0 22px 22px;}
+.c-actions button{flex:1;padding:12px;}
+.btn-primary{background:var(--green);color:#fff;border:none;padding:11px 20px;border-radius:50px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:background .2s;}
+.btn-primary:hover{background:var(--green-dark);}
+.btn-outline{background:transparent;color:var(--text);border:1.5px solid var(--border);padding:10px 20px;border-radius:50px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
+.btn-outline:hover{border-color:var(--green);color:var(--green);}
+
+/* ─── ADMIN PANEL ─────────────────────────────────── */
+#adminPage{display:flex;min-height:100vh;}
+.adm-sidebar{width:215px;background:#0c1810;color:#fff;flex-shrink:0;display:flex;flex-direction:column;}
+.adm-top{padding:22px 18px 0;}
+.adm-brand{display:flex;align-items:center;gap:10px;margin-bottom:30px;}
+.adm-brand-icon{width:36px;height:36px;background:var(--gold);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#1a1a1a;flex-shrink:0;}
+.adm-brand-name{font-size:15px;font-weight:700;}
+.adm-brand-sub{font-size:10px;color:rgba(255,255,255,.3);margin-top:1px;}
+.adm-section-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.25);padding:14px 18px 5px;}
+.adm-nav{display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:13px;cursor:pointer;transition:background .15s;color:rgba(255,255,255,.6);border:none;background:none;width:100%;text-align:left;}
+.adm-nav.active,.adm-nav:hover{background:rgba(255,255,255,.07);color:#fff;}
+.adm-nav.active{border-left:3px solid var(--gold);padding-left:15px;}
+.adm-bottom{margin-top:auto;padding:14px 18px;}
+.adm-user{background:rgba(255,255,255,.06);border-radius:9px;padding:11px 12px;display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.adm-user-av{width:30px;height:30px;border-radius:50%;background:var(--gold);color:#1a1a1a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.adm-user-name{font-size:12px;font-weight:600;color:#fff;}
+.adm-user-role{font-size:10px;color:rgba(255,255,255,.35);}
+.adm-logout{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,.4);background:none;border:none;cursor:pointer;width:100%;padding:6px 0;}
+.adm-logout:hover{color:rgba(255,255,255,.8);}
+
+.adm-main{flex:1;background:var(--bg);overflow:auto;display:flex;flex-direction:column;}
+.adm-header{background:var(--white);border-bottom:1px solid var(--border);padding:20px 36px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.adm-header h2{font-size:22px;font-weight:700;margin-bottom:2px;}
+.adm-header p{font-size:13px;color:var(--muted);}
+.adm-content{padding:28px 36px;flex:1;}
+
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:28px;}
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--white);border-radius:var(--r);padding:20px;box-shadow:var(--shadow);}
+.stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:13px;}
+.si-g{background:var(--green);color:#fff;}
+.si-o{background:var(--gold);color:#1a1a1a;}
+.si-b{background:var(--blue);color:#fff;}
+.si-p{background:#7c3aed;color:#fff;}
+.stat-val{font-size:30px;font-weight:800;margin-bottom:3px;}
+.stat-lbl{font-size:12px;color:var(--muted);}
+
+.tbl-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.tbl-hdr h3{font-size:17px;font-weight:700;}
+.tbl-wrap{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-bottom:28px;}
+table{width:100%;border-collapse:collapse;}
+thead tr{border-bottom:2px solid var(--border);}
+th{padding:13px 16px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:700;}
+td{padding:13px 16px;font-size:13px;border-bottom:1px solid #f5f3ee;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fafaf8;}
+.td-ev{display:flex;align-items:center;gap:11px;}
+.td-thumb{width:38px;height:38px;border-radius:7px;background:linear-gradient(135deg,#e0ded8,#ccc);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.td-en{font-weight:600;font-size:13px;}
+.td-el{font-size:11px;color:var(--muted);}
+.act-btns{display:flex;gap:4px;}
+.act-btn{background:none;border:none;cursor:pointer;padding:5px;border-radius:5px;transition:background .15s;display:flex;align-items:center;}
+.act-btn:hover{background:var(--bg);}
+.ab-e{color:var(--gold-dark);}
+.ab-d{color:var(--red);}
+.badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:50px;}
+.bg-green{background:var(--green);color:#fff;}
+.bg-user{background:var(--blue-light);color:#075985;}
+.bg-admin{background:var(--gold-light);color:var(--gold-dark);}
+.adm-search{padding:9px 13px;border:1.5px solid var(--border);border-radius:7px;font-size:12px;width:200px;outline:none;transition:border-color .2s;}
+.adm-search:focus{border-color:var(--green);}
+.tbl-controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.empty-row td{text-align:center!important;color:var(--muted)!important;padding:32px!important;font-style:italic;}
+.btn-adm{background:var(--green);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .2s;}
+.btn-adm:hover{background:var(--green-dark);}
+select{padding:11px 13px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;background:var(--white);outline:none;width:100%;}
+select:focus{border-color:var(--green);}
+
+/* ─── MODAL ───────────────────────────────────────── */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:center;justify-content:center;}
+.modal-ov.open{display:flex;}
+.modal{background:var(--white);border-radius:16px;padding:30px;width:520px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.22);max-height:90vh;overflow-y:auto;}
+.modal h3{font-size:19px;font-weight:700;margin-bottom:20px;}
+.modal-acts{display:flex;justify-content:flex-end;gap:10px;margin-top:22px;}
+
+/* ─── TOAST ───────────────────────────────────────── */
+.toast{position:fixed;bottom:28px;right:28px;padding:13px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,.2);transform:translateY(70px);opacity:0;transition:all .32s cubic-bezier(.34,1.56,.64,1);z-index:999;color:#fff;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.s{background:var(--green);}
+.toast.e{background:var(--red);}
+.toast.i{background:#333;}
+</style>
 </head>
 <body>
-  <h1>ShowSpot is running</h1>
-  <p>Docker local setup successful</p>
+<div class="toast" id="toast"></div>
+
+<!-- ══════ SCREEN 1: ROLE SELECT ══════ -->
+<div id="rolePage">
+  <div class="role-card">
+    <div class="role-logo">S</div>
+    <h1 class="role-title">Welcome to ShowSpot</h1>
+    <p class="role-sub">How would you like to continue today?</p>
+    <div class="role-options">
+      <button class="role-btn" onclick="showPage('customerAuth')">
+        <div class="role-icon ri-green">🎟</div>
+        <div class="role-btn-title">I'm a Customer</div>
+        <div class="role-btn-sub">Browse events and book tickets</div>
+      </button>
+      <button class="role-btn admin-btn" onclick="showPage('adminAuth')">
+        <div class="role-icon ri-gold">🛡</div>
+        <div class="role-btn-title">I'm an Admin</div>
+        <div class="role-btn-sub">Manage events, bookings &amp; users</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SCREEN 2A: CUSTOMER AUTH ══════ -->
+<div id="customerAuthPage" class="hidden">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <button class="back-role" onclick="showPage('role')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>Change role</button>
+      <div class="auth-logo">S</div>
+      <h2 class="auth-title">ShowSpot</h2>
+      <p class="auth-sub">Sign in or create an account to book tickets</p>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="cuTabLogin" onclick="switchCuTab('login')">Sign In</button>
+        <button class="auth-tab" id="cuTabSignup" onclick="switchCuTab('signup')">Create Account</button>
+      </div>
+      <!-- Customer Login -->
+      <div id="cuLoginForm">
+        <div class="al al-e" id="cuLoginErr"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span></div>
+        <div class="field"><label>Email</label><input type="email" id="cuLiEmail" placeholder="you@example.com" onkeydown="if(event.key==='Enter')doCustomerLogin()"/></div>
+        <div class="field"><label>Password</label><div class="iw"><input type="password" id="cuLiPass" placeholder="Your password" onkeydown="if(event.key==='Enter')doCustomerLogin()"/><button class="eye" onclick="toggleEye('cuLiPass',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <button class="btn-auth" onclick="doCustomerLogin()">Sign In</button>
+        <div class="auth-foot">No account? <a onclick="switchCuTab('signup')">Sign up free</a></div>
+      </div>
+      <!-- Customer Signup -->
+      <div id="cuSignupForm" style="display:none">
+        <div class="al al-e" id="cuSignupErr"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span></div>
+        <div class="al al-s" id="cuSignupOk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span></span></div>
+        <div class="field-row" style="margin-bottom:14px"><div class="field"><label>First Name</label><input type="text" id="cuSuFirst" placeholder="Jane"/></div><div class="field"><label>Last Name</label><input type="text" id="cuSuLast" placeholder="Doe"/></div></div>
+        <div class="field"><label>Email</label><input type="email" id="cuSuEmail" placeholder="you@example.com"/></div>
+        <div class="field"><label>Phone</label><input type="tel" id="cuSuPhone" placeholder="+1 (555) 000-0000"/></div>
+        <div class="field"><label>Password</label><div class="iw"><input type="password" id="cuSuPass" placeholder="Min. 6 characters" oninput="pwStr(this,'cuPwBars','cuPwLbl')"/><button class="eye" onclick="toggleEye('cuSuPass',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="pw-bars" id="cuPwBars"><div class="pw-bar"></div><div class="pw-bar"></div><div class="pw-bar"></div><div class="pw-bar"></div></div><div class="pw-lbl" id="cuPwLbl"></div></div>
+        <div class="field"><label>Confirm Password</label><div class="iw"><input type="password" id="cuSuPass2" placeholder="Repeat password" onkeydown="if(event.key==='Enter')doCustomerSignup()"/><button class="eye" onclick="toggleEye('cuSuPass2',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <button class="btn-auth" onclick="doCustomerSignup()">Create Account</button>
+        <div class="auth-foot">Have an account? <a onclick="switchCuTab('login')">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ SCREEN 2B: ADMIN AUTH ══════ -->
+<div id="adminAuthPage" class="hidden">
+  <div class="auth-wrap" style="background:#0c1810;">
+    <div class="auth-card" style="width:440px">
+      <button class="back-role" onclick="showPage('role')" style="color:rgba(255,255,255,.45);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>Change role</button>
+      <div class="auth-logo" style="background:var(--gold);font-size:20px;">🛡</div>
+      <h2 class="auth-title">Admin Portal</h2>
+      <p class="auth-sub">Authorised personnel only</p>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="adTabLogin" onclick="switchAdTab('login')">Sign In</button>
+        <button class="auth-tab" id="adTabSignup" onclick="switchAdTab('signup')">Register Admin</button>
+      </div>
+      <!-- Admin Login -->
+      <div id="adLoginForm">
+        <div class="al al-e" id="adLoginErr"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span></div>
+        <div class="field"><label>Username</label><input type="text" id="adLiUser" placeholder="Admin username" onkeydown="if(event.key==='Enter')doAdminLogin()"/></div>
+        <div class="field"><label>Password</label><div class="iw"><input type="password" id="adLiPass" placeholder="Admin password" onkeydown="if(event.key==='Enter')doAdminLogin()"/><button class="eye" onclick="toggleEye('adLiPass',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <button class="btn-auth" onclick="doAdminLogin()">Access Admin Panel</button>
+        <div style="background:var(--gold-light);border-radius:8px;padding:10px 13px;font-size:12px;color:#7a5c1e;margin-top:14px;line-height:1.5"><strong>Demo credentials —</strong> Username: <code>admin</code> &nbsp;|&nbsp; Password: <code>admin123</code></div>
+      </div>
+      <!-- Admin Signup -->
+      <div id="adSignupForm" style="display:none">
+        <div class="al al-e" id="adSignupErr"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span></span></div>
+        <div class="al al-s" id="adSignupOk"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span></span></div>
+        <div class="field-row" style="margin-bottom:14px"><div class="field"><label>First Name</label><input type="text" id="adSuFirst" placeholder="Jane"/></div><div class="field"><label>Last Name</label><input type="text" id="adSuLast" placeholder="Smith"/></div></div>
+        <div class="field"><label>Username *</label><input type="text" id="adSuUser" placeholder="unique_username"/></div>
+        <div class="field"><label>Email</label><input type="email" id="adSuEmail" placeholder="admin@example.com"/></div>
+        <div class="field"><label>Password *</label><div class="iw"><input type="password" id="adSuPass" placeholder="Min. 8 characters" oninput="pwStr(this,'adPwBars','adPwLbl')"/><button class="eye" onclick="toggleEye('adSuPass',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="pw-bars" id="adPwBars"><div class="pw-bar"></div><div class="pw-bar"></div><div class="pw-bar"></div><div class="pw-bar"></div></div><div class="pw-lbl" id="adPwLbl"></div></div>
+        <div class="field"><label>Confirm Password *</label><div class="iw"><input type="password" id="adSuPass2" placeholder="Repeat password"/><button class="eye" onclick="toggleEye('adSuPass2',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+        <div class="field"><label>Admin Registration Key *</label><input type="password" id="adSuKey" placeholder="Contact super admin for key" onkeydown="if(event.key==='Enter')doAdminSignup()"/><div style="font-size:11px;color:var(--muted);margin-top:3px">Demo key: <code>ADMIN-KEY-2026</code></div></div>
+        <button class="btn-auth" onclick="doAdminSignup()">Create Admin Account</button>
+        <div class="auth-foot">Already registered? <a onclick="switchAdTab('login')">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ TOP NAV (customer) ══════ -->
+<nav class="topnav hidden" id="topNav">
+  <div class="nav-logo" onclick="showPage('events')"><div class="nav-logo-icon">S</div>ShowSpot</div>
+  <div class="nav-right" id="navRight"></div>
+</nav>
+
+<!-- ══════ EVENTS PAGE ══════ -->
+<div id="eventsPage" class="hidden">
+  <div style="max-width:1280px;margin:0 auto;padding:90px 40px 60px">
+    <h1>Discover Events</h1>
+    <p class="subtitle">Find and book amazing events happening near you</p>
+    <div class="search-bar"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" placeholder="Search events, locations..." id="searchInput" oninput="filterEvents()"/></div>
+    <div class="filters">
+      <button class="filter-btn active" onclick="setFilter('All',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('Music',this)">🎵 Music</button>
+      <button class="filter-btn" onclick="setFilter('Conference',this)">🎙 Conference</button>
+      <button class="filter-btn" onclick="setFilter('Comedy',this)">😂 Comedy</button>
+      <button class="filter-btn" onclick="setFilter('Art',this)">🎨 Art</button>
+      <button class="filter-btn" onclick="setFilter('Food',this)">🍷 Food</button>
+      <button class="filter-btn" onclick="setFilter('Sports',this)">🏀 Sports</button>
+    </div>
+    <div class="events-grid" id="eventsGrid"></div>
+  </div>
+</div>
+
+<!-- ══════ SEAT PAGE ══════ -->
+<div id="seatPage" class="hidden">
+  <div class="seat-hero">
+    <button class="back-link" onclick="showPage('events')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>Back to Events</button>
+    <h2 id="seatEvName" style="margin-top:11px"></h2>
+    <div class="seat-hero-meta">
+      <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span id="seatDate"></span></span>
+      <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="seatTime"></span></span>
+      <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="seatVenue"></span></span>
+    </div>
+  </div>
+  <div class="seat-content">
+    <div class="seat-card">
+      <div class="seat-legend"><div class="seat-legend-item"><div class="leg-dot leg-a"></div>Available</div><div class="seat-legend-item"><div class="leg-dot leg-s"></div>Selected</div><div class="seat-legend-item"><div class="leg-dot leg-b"></div>Booked</div></div>
+      <div id="seatCapInfo" style="font-size:12px;color:var(--muted);margin-bottom:14px;"></div>
+      <div class="stage">STAGE / SCREEN</div>
+      <div class="seat-grid" id="seatGrid"></div>
+    </div>
+    <div class="sum-card">
+      <h3>Booking Summary</h3>
+      <div class="sum-hint"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg><span id="sumHint">Select seats to continue</span></div>
+      <div class="sum-row"><span class="sl">Selected Seats</span><span id="sumSeats">—</span></div>
+      <div class="sum-row"><span class="sl">Price per seat</span><span id="sumPrice">—</span></div>
+      <div class="sum-row"><span class="sl">Number of seats</span><span id="sumCount">0</span></div>
+      <div class="sum-div"></div>
+      <div class="sum-total"><span>Total</span><span class="ta" id="sumTotal">$0</span></div>
+      <button class="btn-proceed" id="proceedBtn" onclick="showPage('payment')" disabled>Proceed to Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PAYMENT PAGE ══════ -->
+<div id="paymentPage" class="hidden">
+  <div style="max-width:1000px;margin:0 auto;padding:38px 40px">
+    <button class="back-dark" onclick="showPage('seats')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>Back to Seat Selection</button>
+    <h2 style="font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:26px;">Complete Your Booking</h2>
+    <div class="pay-grid">
+      <div class="pay-card pay-sum">
+        <div class="pay-ev-img" id="payEvEmoji"></div>
+        <h3 id="payName" style="font-size:16px;font-weight:700;margin-bottom:7px;"></h3>
+        <div class="pay-ev-meta" id="payMeta"></div>
+        <div class="pay-rows">
+          <div class="pay-row"><span class="pl">Selected Seats</span><span id="paySeats" style="font-weight:600;text-align:right;max-width:150px;word-break:break-all"></span></div>
+          <div class="pay-row"><span class="pl">Number of seats</span><span id="payCount"></span></div>
+          <div class="pay-row"><span class="pl">Price per seat</span><span id="payPriceEach"></span></div>
+          <div class="pay-div"></div>
+          <div class="pay-total"><span>Total Amount</span><span class="ta" id="payTotal"></span></div>
+        </div>
+      </div>
+      <div class="pay-card pay-form">
+        <p class="sec-title">Contact Information</p>
+        <div class="frow"><div class="fg"><label>Full Name *</label><input type="text" id="inputName"/></div><div class="fg"><label>Email *</label><input type="email" id="inputEmail"/></div></div>
+        <div class="fg"><label>Phone *</label><input type="tel" id="inputPhone"/></div>
+        <div class="sec-div"></div>
+        <p class="sec-title">Payment Method</p>
+        <div class="pay-methods">
+          <button class="pm-btn active" onclick="selPay(this,'card')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Credit Card</button>
+          <button class="pm-btn" onclick="selPay(this,'pp')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>PayPal</button>
+          <button class="pm-btn" onclick="selPay(this,'gp')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>Google Pay</button>
+        </div>
+        <div id="cardFields">
+          <div class="fg"><label>Card Number *</label><input type="text" placeholder="1234 5678 9012 3456" id="inputCard" maxlength="19" oninput="fmtCard(this)"/></div>
+          <div class="frow"><div class="fg"><label>Expiry *</label><input type="text" placeholder="MM/YY" id="inputExpiry" maxlength="5" oninput="fmtExpiry(this)"/></div><div class="fg"><label>CVV *</label><input type="text" placeholder="123" id="inputCvv" maxlength="3"/></div></div>
+        </div>
+        <button class="btn-pay" onclick="completePayment()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span id="btnPayTxt">Complete Payment</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ CONFIRM PAGE ══════ -->
+<div id="confirmPage" class="hidden">
+  <div style="max-width:540px;margin:56px auto;padding:0 20px;text-align:center;">
+    <div class="conf-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <h2 style="font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:5px;">Booking Confirmed!</h2>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:26px;">Your tickets have been booked successfully</p>
+    <div class="conf-card" style="margin:0 auto 28px">
+      <div class="c-bid"><div class="bl">Booking ID</div><div class="bv" id="cBid"></div></div>
+      <div class="c-body">
+        <div class="c-evname" id="cEvName"></div>
+        <div class="c-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span id="cDate"></span></div>
+        <div class="c-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span id="cTime"></span></div>
+        <div class="c-meta"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="cVenue"></span></div>
+        <div class="c-div"></div>
+        <div class="c-2col">
+          <div><div class="c-fl">Customer Name</div><div class="c-fv" id="cName"></div></div>
+          <div><div class="c-fl">Email</div><div class="c-fv" id="cEmail" style="font-size:12px;word-break:break-all"></div></div>
+          <div><div class="c-fl">Selected Seats</div><div class="c-fv" id="cSeats"></div></div>
+          <div><div class="c-fl">No. of Tickets</div><div class="c-fv" id="cCount"></div></div>
+        </div>
+        <div class="c-div"></div>
+        <div class="c-prow"><span class="cp" id="cPriceCalc"></span><span id="cSub"></span></div>
+        <div class="c-trow"><span>Total Paid</span><span class="cta" id="cTotal"></span></div>
+        <div class="c-email">Confirmation sent to <strong id="cEmailBold"></strong><br><span style="color:var(--muted);font-size:11px">Check inbox for e-tickets and event details.</span></div>
+      </div>
+      <div class="c-actions">
+        <button class="btn-primary" onclick="toast('Tickets downloaded!','s')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download Tickets</button>
+        <button class="btn-outline" onclick="showPage('events')">Browse More Events</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ ADMIN PANEL ══════ -->
+<div id="adminPage" class="hidden" style="min-height:100vh">
+  <div class="adm-sidebar">
+    <div class="adm-top">
+      <div class="adm-brand"><div class="adm-brand-icon">S</div><div><div class="adm-brand-name">ShowSpot</div><div class="adm-brand-sub">Admin Panel</div></div></div>
+      <div class="adm-section-lbl">Main</div>
+      <button class="adm-nav active" onclick="aTab('a-overview',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview</button>
+      <button class="adm-nav" onclick="aTab('a-events',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Events</button>
+      <button class="adm-nav" onclick="aTab('a-bookings',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Bookings</button>
+      <div class="adm-section-lbl">System</div>
+      <button class="adm-nav" onclick="aTab('a-users',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Users</button>
+      <button class="adm-nav" onclick="aTab('a-admins',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admins</button>
+      <button class="adm-nav" onclick="aTab('a-settings',this)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>Settings</button>
+    </div>
+    <div class="adm-bottom">
+      <div class="adm-user"><div class="adm-user-av" id="admAv">A</div><div><div class="adm-user-name" id="admName">Admin</div><div class="adm-user-role" id="admRole">Administrator</div></div></div>
+      <button class="adm-logout" onclick="adminLogout()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
+    </div>
+  </div>
+
+  <div class="adm-main">
+    <!-- OVERVIEW -->
+    <div id="a-overview">
+      <div class="adm-header"><div><h2>Dashboard Overview</h2><p id="admWelcome">Welcome back</p></div><button class="btn-adm" onclick="openAddEvent()">+ Add Event</button></div>
+      <div class="adm-content">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon si-g"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="stat-val" id="stEv">0</div><div class="stat-lbl">Total Events</div></div>
+          <div class="stat-card"><div class="stat-icon si-b"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="stat-val" id="stUs">0</div><div class="stat-lbl">Registered Users</div></div>
+          <div class="stat-card"><div class="stat-icon si-o"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div><div class="stat-val" id="stBk">0</div><div class="stat-lbl">Total Bookings</div></div>
+          <div class="stat-card"><div class="stat-icon si-g"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="stat-val" id="stRev">$0</div><div class="stat-lbl">Revenue</div></div>
+        </div>
+        <div class="tbl-hdr"><h3>Manage Events</h3><button class="btn-adm" onclick="openAddEvent()">+ Add Event</button></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Event</th><th>Date</th><th>Category</th><th>Price</th><th>Seats</th><th>Available</th><th>Actions</th></tr></thead><tbody id="admEvBody1"></tbody></table></div>
+      </div>
+    </div>
+    <!-- EVENTS -->
+    <div id="a-events" class="hidden">
+      <div class="adm-header"><div><h2>Events</h2><p>Manage all events on the platform</p></div><button class="btn-adm" onclick="openAddEvent()">+ Add Event</button></div>
+      <div class="adm-content">
+        <div class="tbl-controls"><h3>All Events</h3><input class="adm-search" type="text" placeholder="Search events…" oninput="filterAdmEvents(this.value)"/></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Event</th><th>Date</th><th>Category</th><th>Price</th><th>Seats</th><th>Available</th><th>Actions</th></tr></thead><tbody id="admEvBody2"></tbody></table></div>
+      </div>
+    </div>
+    <!-- BOOKINGS -->
+    <div id="a-bookings" class="hidden">
+      <div class="adm-header"><div><h2>Bookings</h2><p>All customer bookings</p></div></div>
+      <div class="adm-content">
+        <div class="tbl-wrap"><table><thead><tr><th>Booking ID</th><th>Customer</th><th>Event</th><th>Seats</th><th>Total</th><th>Date</th></tr></thead><tbody id="admBkBody"></tbody></table></div>
+      </div>
+    </div>
+    <!-- USERS -->
+    <div id="a-users" class="hidden">
+      <div class="adm-header"><div><h2>Users</h2><p>All registered customer accounts</p></div></div>
+      <div class="adm-content">
+        <div class="tbl-controls"><h3>All Users</h3><input class="adm-search" type="text" placeholder="Search users…" oninput="filterAdmUsers(this.value)"/></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Bookings</th></tr></thead><tbody id="admUsBody"></tbody></table></div>
+      </div>
+    </div>
+    <!-- ADMINS -->
+    <div id="a-admins" class="hidden">
+      <div class="adm-header"><div><h2>Admin Accounts</h2><p>Manage administrator access</p></div><button class="btn-adm" onclick="showPage('adminAuth');switchAdTab('signup')">+ Add Admin</button></div>
+      <div class="adm-content">
+        <div class="tbl-wrap"><table><thead><tr><th>Admin</th><th>Username</th><th>Email</th><th>Role</th><th>Created</th><th>Actions</th></tr></thead><tbody id="admAdBody"></tbody></table></div>
+      </div>
+    </div>
+    <!-- SETTINGS -->
+    <div id="a-settings" class="hidden">
+      <div class="adm-header"><div><h2>Settings</h2><p>Platform configuration</p></div></div>
+      <div class="adm-content">
+        <div style="background:var(--white);border-radius:var(--r);padding:26px;box-shadow:var(--shadow);max-width:480px">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:18px;">General Settings</h3>
+          <div class="fg"><label>Platform Name</label><input type="text" value="ShowSpot"/></div>
+          <div class="fg"><label>Support Email</label><input type="email" value="support@showspot.com"/></div>
+          <div class="fg"><label>Default Currency</label><input type="text" value="USD ($)"/></div>
+          <div class="fg"><label>Admin Registration Key</label><input type="text" value="ADMIN-KEY-2026"/><div style="font-size:11px;color:var(--muted);margin-top:3px">Share with users you want to register as admins.</div></div>
+          <button class="btn-adm" style="margin-top:4px" onclick="toast('Settings saved!','s')">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Event Modal -->
+<div class="modal-ov" id="evModal">
+  <div class="modal">
+    <h3 id="evModalTitle">Add New Event</h3>
+    <div class="fg"><label>Event Name *</label><input type="text" id="mName" placeholder="e.g. Jazz Night 2026"/></div>
+    <div class="frow"><div class="fg"><label>Date *</label><input type="date" id="mDate"/></div><div class="fg"><label>Time *</label><input type="time" id="mTime"/></div></div>
+    <div class="fg"><label>Venue *</label><input type="text" id="mVenue" placeholder="Venue name"/></div>
+    <div class="frow"><div class="fg"><label>Category *</label><select id="mCat"><option>Music</option><option>Conference</option><option>Comedy</option><option>Art</option><option>Food</option><option>Sports</option></select></div><div class="fg"><label>Price per Seat ($) *</label><input type="number" id="mPrice" placeholder="75" min="0"/></div></div>
+    <div class="fg"><label>Total Seats *</label><input type="number" id="mSeats" placeholder="e.g. 80" min="1"/><div style="font-size:11px;color:var(--muted);margin-top:3px">Seat map auto-generates to fit this capacity.</div></div>
+    <div class="modal-acts"><button class="btn-outline" onclick="closeModal()">Cancel</button><button class="btn-adm" onclick="saveEvent()">Save Event</button></div>
+  </div>
+</div>
+
+<script>
+const ADMIN_REG_KEY='ADMIN-KEY-2026';
+const CAT_EMOJI={Music:'🎵',Conference:'🎙',Comedy:'😂',Art:'🎨',Food:'🍷',Sports:'🏀'};
+
+let users=[],bookings=[],currentUser=null,currentAdmin=null;
+let currentEvent=null,selectedSeats=[],activeFilter='All',_editEvId=null;
+let admins=[{id:1,firstName:'Super',lastName:'Admin',username:'admin',email:'admin@showspot.com',ph:h('admin123'),role:'Super Admin',createdAt:'Jan 1, 2026'}];
+let events=[
+  {id:1,name:'Summer Music Festival 2026',date:'Jun 15, 2026',rawDate:'2026-06-15',time:'18:00',venue:'Central Park Amphitheater',category:'Music',price:75,total:80,available:77,bookedSeats:['C2','D3','D4']},
+  {id:2,name:'Food & Wine Expo 2026',date:'Jul 4, 2026',rawDate:'2026-07-04',time:'12:00',venue:'Pier 39, San Francisco',category:'Food',price:45,total:50,available:48,bookedSeats:['A1','B3']},
+  {id:3,name:'Tech Conference 2026',date:'Aug 20, 2026',rawDate:'2026-08-20',time:'09:00',venue:'Moscone Center',category:'Conference',price:120,total:120,available:119,bookedSeats:['E5']},
+  {id:4,name:'Comedy Night Live',date:'Sep 3, 2026',rawDate:'2026-09-03',time:'20:00',venue:'The Laugh Factory',category:'Comedy',price:55,total:60,available:58,bookedSeats:['B2','F6']},
+  {id:5,name:'Art Basel Showcase',date:'Oct 10, 2026',rawDate:'2026-10-10',time:'10:00',venue:'Miami Beach Conv. Center',category:'Art',price:30,total:200,available:200,bookedSeats:[]},
+  {id:6,name:'NBA All-Star Weekend',date:'Feb 14, 2027',rawDate:'2027-02-14',time:'19:30',venue:'United Center Chicago',category:'Sports',price:200,total:100,available:97,bookedSeats:['A1','A2','B1']},
+];
+
+function h(s){let v=0;for(let i=0;i<s.length;i++){v=((v<<5)-v)+s.charCodeAt(i);v|=0;}return v.toString(36);}
+function toggleEye(id,btn){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';btn.innerHTML=i.type==='password'?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';}
+function pwStr(inp,bId,lId){const v=inp.value,bars=document.getElementById(bId).querySelectorAll('.pw-bar'),lbl=document.getElementById(lId);let s=0;if(v.length>=6)s++;if(v.length>=10)s++;if(/[A-Z]/.test(v)&&/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;const cls=['','weak','fair','strong','strong'],lbls=['','Weak','Fair','Good','Strong'];bars.forEach((b,i)=>{b.className='pw-bar'+(i<s?' '+cls[s]:'');});lbl.textContent=v.length?lbls[s]:'';}
+function showAl(id,msg,t='e'){const el=document.getElementById(id);if(!el)return;const sp=el.querySelector('span');if(sp)sp.textContent=msg;el.className=`al al-${t==='e'?'e':'s'} show`;}
+function hideAl(id){const el=document.getElementById(id);if(el)el.classList.remove('show');}
+function toast(msg,t='i'){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast ${t} show`;setTimeout(()=>el.classList.remove('show'),3000);}
+
+// ── Navigation ──
+function showPage(p){
+  const all=['rolePage','customerAuthPage','adminAuthPage','eventsPage','seatPage','paymentPage','confirmPage','adminPage'];
+  all.forEach(id=>document.getElementById(id).classList.add('hidden'));
+  const nav=document.getElementById('topNav');nav.classList.add('hidden');
+  if(p==='role'){document.getElementById('rolePage').classList.remove('hidden');}
+  else if(p==='customerAuth'){document.getElementById('customerAuthPage').classList.remove('hidden');}
+  else if(p==='adminAuth'){document.getElementById('adminAuthPage').classList.remove('hidden');}
+  else if(p==='events'){document.getElementById('eventsPage').classList.remove('hidden');nav.classList.remove('hidden');renderNav();renderEvents(events);}
+  else if(p==='seats'){document.getElementById('seatPage').classList.remove('hidden');nav.classList.remove('hidden');renderNav();renderSeats();}
+  else if(p==='payment'){if(!selectedSeats.length){toast('Please select at least one seat!','e');return;}document.getElementById('paymentPage').classList.remove('hidden');nav.classList.remove('hidden');renderNav();populatePayment();}
+  else if(p==='confirm'){document.getElementById('confirmPage').classList.remove('hidden');nav.classList.remove('hidden');renderNav();}
+  else if(p==='admin'){if(!currentAdmin){showPage('adminAuth');return;}document.getElementById('adminPage').classList.remove('hidden');refreshAdmin();}
+}
+function renderNav(){const r=document.getElementById('navRight');if(currentUser){const ini=(currentUser.firstName[0]+currentUser.lastName[0]).toUpperCase();r.innerHTML=`<div style="display:flex;align-items:center;gap:9px"><div class="nav-av">${ini}</div><span class="nav-name">${currentUser.firstName}</span></div><button class="nav-btn" onclick="customerLogout()">Sign Out</button>`;}else{r.innerHTML=`<button class="nav-btn" onclick="showPage('customerAuth')">Sign In</button>`;}}
+
+// ── Customer Auth ──
+function switchCuTab(t){document.getElementById('cuLoginForm').style.display=t==='login'?'block':'none';document.getElementById('cuSignupForm').style.display=t==='signup'?'block':'none';document.getElementById('cuTabLogin').className='auth-tab'+(t==='login'?' active':'');document.getElementById('cuTabSignup').className='auth-tab'+(t==='signup'?' active':'');['cuLoginErr','cuSignupErr','cuSignupOk'].forEach(hideAl);}
+function doCustomerLogin(){const email=document.getElementById('cuLiEmail').value.trim().toLowerCase(),pass=document.getElementById('cuLiPass').value;hideAl('cuLoginErr');if(!email||!pass){showAl('cuLoginErr','Please fill in all fields.');return;}const user=users.find(u=>u.email===email&&u.ph===h(pass));if(!user){showAl('cuLoginErr','No account found with those credentials.');return;}currentUser=user;showPage('events');toast(`Welcome back, ${user.firstName}! 👋`,'s');}
+function doCustomerSignup(){const first=document.getElementById('cuSuFirst').value.trim(),last=document.getElementById('cuSuLast').value.trim(),email=document.getElementById('cuSuEmail').value.trim().toLowerCase(),phone=document.getElementById('cuSuPhone').value.trim(),pass=document.getElementById('cuSuPass').value,pass2=document.getElementById('cuSuPass2').value;hideAl('cuSignupErr');hideAl('cuSignupOk');if(!first||!last||!email||!pass){showAl('cuSignupErr','Please fill in all required fields.');return;}if(pass.length<6){showAl('cuSignupErr','Password must be at least 6 characters.');return;}if(pass!==pass2){showAl('cuSignupErr','Passwords do not match.');return;}if(users.find(u=>u.email===email)){showAl('cuSignupErr','An account with this email already exists.');return;}const user={id:Date.now(),firstName:first,lastName:last,email,phone,ph:h(pass),role:'user',joinedAt:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};users.push(user);currentUser=user;showAl('cuSignupOk',`Account created! Welcome, ${first}. 🎉`,'s');setTimeout(()=>{showPage('events');toast(`Welcome, ${first}! 🎉`,'s');},900);}
+function customerLogout(){currentUser=null;showPage('role');}
+
+// ── Admin Auth ──
+function switchAdTab(t){document.getElementById('adLoginForm').style.display=t==='login'?'block':'none';document.getElementById('adSignupForm').style.display=t==='signup'?'block':'none';document.getElementById('adTabLogin').className='auth-tab'+(t==='login'?' active':'');document.getElementById('adTabSignup').className='auth-tab'+(t==='signup'?' active':'');['adLoginErr','adSignupErr','adSignupOk'].forEach(hideAl);}
+function doAdminLogin(){const u=document.getElementById('adLiUser').value.trim(),p=document.getElementById('adLiPass').value;hideAl('adLoginErr');if(!u||!p){showAl('adLoginErr','Please enter username and password.');return;}const admin=admins.find(a=>a.username===u&&a.ph===h(p));if(!admin){showAl('adLoginErr','Invalid credentials. Access denied.');document.getElementById('adLiPass').value='';return;}currentAdmin=admin;document.getElementById('adLiUser').value='';document.getElementById('adLiPass').value='';showPage('admin');}
+function doAdminSignup(){const first=document.getElementById('adSuFirst').value.trim(),last=document.getElementById('adSuLast').value.trim(),username=document.getElementById('adSuUser').value.trim(),email=document.getElementById('adSuEmail').value.trim().toLowerCase(),pass=document.getElementById('adSuPass').value,pass2=document.getElementById('adSuPass2').value,key=document.getElementById('adSuKey').value.trim();hideAl('adSignupErr');hideAl('adSignupOk');if(!username||!pass||!pass2||!key){showAl('adSignupErr','Please fill in all required fields.');return;}if(pass.length<8){showAl('adSignupErr','Password must be at least 8 characters.');return;}if(pass!==pass2){showAl('adSignupErr','Passwords do not match.');return;}if(key!==ADMIN_REG_KEY){showAl('adSignupErr','Invalid admin registration key.');return;}if(admins.find(a=>a.username===username)){showAl('adSignupErr','Username already taken.');return;}admins.push({id:Date.now(),firstName:first||username,lastName:last||'',username,email,ph:h(pass),role:'Admin',createdAt:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})});showAl('adSignupOk',`Admin "${username}" created! You can now sign in.`,'s');['adSuFirst','adSuLast','adSuUser','adSuEmail','adSuPass','adSuPass2','adSuKey'].forEach(id=>document.getElementById(id).value='');setTimeout(()=>switchAdTab('login'),2000);}
+function adminLogout(){currentAdmin=null;showPage('role');toast('Signed out of admin panel.','i');}
+
+// ── Events ──
+function renderEvents(list){const g=document.getElementById('eventsGrid');g.innerHTML='';if(!list.length){g.innerHTML='<p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:56px 0">No events found.</p>';return;}list.forEach(ev=>{const emoji=CAT_EMOJI[ev.category]||'🎪',low=ev.available<ev.total*.2;g.innerHTML+=`<div class="event-card" onclick="bookEvent(${ev.id})"><div class="ev-img">${emoji}<span class="cat-badge">${ev.category}</span></div><div class="ev-body"><h3>${ev.name}</h3><div class="ev-meta"><div class="ev-meta-row"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${ev.date} · ${ev.time}</div><div class="ev-meta-row"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${ev.venue}</div><div class="ev-meta-row"><span class="seats-tag ${low?'low':''}">${low?'⚠ Only '+ev.available+' left':ev.available+'/'+ev.total+' available'}</span></div></div><div class="ev-footer"><div><div class="price-lbl">Starting from</div><div class="price">$${ev.price}</div></div><button class="btn-book" onclick="event.stopPropagation();bookEvent(${ev.id})">Book Now</button></div></div></div>`;});}
+function setFilter(cat,btn){activeFilter=cat;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');filterEvents();}
+function filterEvents(){const q=document.getElementById('searchInput').value.toLowerCase();let list=events;if(activeFilter!=='All')list=list.filter(e=>e.category===activeFilter);if(q)list=list.filter(e=>e.name.toLowerCase().includes(q)||e.venue.toLowerCase().includes(q));renderEvents(list);}
+function bookEvent(id){currentEvent=events.find(e=>e.id===id);selectedSeats=[];document.getElementById('seatEvName').textContent=currentEvent.name;document.getElementById('seatDate').textContent=currentEvent.date;document.getElementById('seatTime').textContent=currentEvent.time;document.getElementById('seatVenue').textContent=currentEvent.venue;updateSum();showPage('seats');}
+
+// ── Seats ──
+function calcLayout(t){if(t<=0)return{rows:1,cols:1};let br=1,bc=t;for(let r=1;r<=Math.min(26,t);r++){const c=Math.ceil(t/r),ratio=c/r;if(ratio>=1.2&&ratio<=3){br=r;bc=c;break;}}if(bc===t&&t>1){br=Math.min(26,Math.ceil(Math.sqrt(t*.6)));bc=Math.ceil(t/br);}return{rows:br,cols:bc};}
+function seatSz(c){return c<=10?34:c<=16?28:c<=22?24:c<=30?20:16;}
+function renderSeats(){const g=document.getElementById('seatGrid');g.innerHTML='';const{rows,cols}=calcLayout(currentEvent.total),sz=seatSz(cols),LABS='ABCDEFGHIJKLMNOPQRSTUVWXYZ';document.getElementById('seatCapInfo').textContent=`Venue capacity: ${currentEvent.total} seats (${rows} rows × up to ${cols} per row)`;let sn=0;for(let r=0;r<rows;r++){const rl=LABS[r],rd=document.createElement('div');rd.className='seat-row';const lb=document.createElement('div');lb.className='row-lbl';lb.style.fontSize=sz<=20?'9px':'11px';lb.textContent=rl;rd.appendChild(lb);for(let c=1;c<=cols;c++){sn++;if(sn>currentEvent.total)break;const sid=`${rl}${c}`,btn=document.createElement('button');btn.className='s-btn';btn.style.width=btn.style.height=sz+'px';btn.title=`Seat ${sid}`;const booked=currentEvent.bookedSeats.includes(sid),sel=selectedSeats.includes(sid);btn.classList.add(booked?'bk':sel?'sel':'av');if(!booked)btn.onclick=()=>toggleSeat(sid,btn);rd.appendChild(btn);}g.appendChild(rd);}}
+function toggleSeat(id,btn){if(selectedSeats.includes(id)){selectedSeats=selectedSeats.filter(s=>s!==id);btn.classList.replace('sel','av');}else{selectedSeats.push(id);btn.classList.replace('av','sel');}updateSum();}
+function updateSum(){const n=selectedSeats.length,p=currentEvent?.price||0;document.getElementById('sumSeats').textContent=n>0?selectedSeats.join(', '):'—';document.getElementById('sumPrice').textContent=`$${p}`;document.getElementById('sumCount').textContent=n;document.getElementById('sumTotal').textContent=`$${n*p}`;document.getElementById('sumHint').textContent=n>0?`${n} seat${n>1?'s':''} selected`:'Select seats to continue';const btn=document.getElementById('proceedBtn');btn.disabled=n===0;btn.textContent=n>0?`Proceed to Payment — $${n*p}`:'Proceed to Payment';}
+
+// ── Payment ──
+function populatePayment(){if(!currentEvent)return;const n=selectedSeats.length,p=currentEvent.price,emoji=CAT_EMOJI[currentEvent.category]||'🎪';document.getElementById('payEvEmoji').textContent=emoji;document.getElementById('payName').textContent=currentEvent.name;document.getElementById('payMeta').innerHTML=`${currentEvent.date}<br>${currentEvent.time}<br>${currentEvent.venue}`;document.getElementById('paySeats').textContent=selectedSeats.join(', ');document.getElementById('payCount').textContent=n;document.getElementById('payPriceEach').textContent=`$${p}`;document.getElementById('payTotal').textContent=`$${n*p}`;document.getElementById('btnPayTxt').textContent=`Complete Payment — $${n*p}`;if(currentUser){document.getElementById('inputName').value=`${currentUser.firstName} ${currentUser.lastName}`;document.getElementById('inputEmail').value=currentUser.email;document.getElementById('inputPhone').value=currentUser.phone||'';}}
+function selPay(btn,type){document.querySelectorAll('.pm-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('cardFields').style.display=type==='card'?'block':'none';}
+function fmtCard(el){let v=el.value.replace(/\D/g,'').substring(0,16);el.value=v.replace(/(.{4})/g,'$1 ').trim();}
+function fmtExpiry(el){let v=el.value.replace(/\D/g,'');if(v.length>=2)v=v.substring(0,2)+'/'+v.substring(2);el.value=v;}
+function completePayment(){const name=document.getElementById('inputName').value.trim(),email=document.getElementById('inputEmail').value.trim(),phone=document.getElementById('inputPhone').value.trim();if(!name||!email||!phone){toast('Please fill in all contact fields','e');return;}const bk={id:'BK'+Math.random().toString(36).substr(2,8).toUpperCase(),event:currentEvent,seats:[...selectedSeats],name,email,phone,total:selectedSeats.length*currentEvent.price,userId:currentUser?.id||null,createdAt:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};bookings.push(bk);currentEvent.available-=selectedSeats.length;currentEvent.bookedSeats.push(...selectedSeats);populateConfirm(bk);showPage('confirm');}
+
+// ── Confirm ──
+function populateConfirm(b){const n=b.seats.length,p=b.event.price;document.getElementById('cBid').textContent=b.id;document.getElementById('cEvName').textContent=b.event.name;document.getElementById('cDate').textContent=b.event.date;document.getElementById('cTime').textContent=b.event.time;document.getElementById('cVenue').textContent=b.event.venue;document.getElementById('cName').textContent=b.name;document.getElementById('cEmail').textContent=b.email;document.getElementById('cEmailBold').textContent=b.email;document.getElementById('cSeats').textContent=b.seats.join(', ');document.getElementById('cCount').textContent=n;document.getElementById('cPriceCalc').textContent=`${n} × $${p}`;document.getElementById('cSub').textContent=`$${b.total}`;document.getElementById('cTotal').textContent=`$${b.total}`;}
+
+// ── Admin Panel ──
+function aTab(id,btn){['a-overview','a-events','a-bookings','a-users','a-admins','a-settings'].forEach(t=>{const el=document.getElementById(t);if(el)el.classList.add('hidden');});document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.adm-nav').forEach(b=>b.classList.remove('active'));btn.classList.add('active');refreshAdmin();}
+function refreshAdmin(){if(!currentAdmin)return;const ini=(currentAdmin.firstName[0]+(currentAdmin.lastName?.[0]||'')).toUpperCase();document.getElementById('admAv').textContent=ini;document.getElementById('admName').textContent=`${currentAdmin.firstName} ${currentAdmin.lastName||''}`.trim();document.getElementById('admRole').textContent=currentAdmin.role;document.getElementById('admWelcome').textContent=`Welcome back, ${currentAdmin.firstName}`;document.getElementById('stEv').textContent=events.length;document.getElementById('stUs').textContent=users.length;document.getElementById('stBk').textContent=bookings.length;document.getElementById('stRev').textContent='$'+bookings.reduce((a,b)=>a+b.total,0);renderAdmEvents();renderAdmBookings();renderAdmUsers();renderAdmAdmins();}
+
+function renderAdmEvents(filter=''){const list=filter?events.filter(e=>e.name.toLowerCase().includes(filter)||e.venue.toLowerCase().includes(filter)):events;const html=list.length?list.map(ev=>{const emoji=CAT_EMOJI[ev.category]||'🎪';return`<tr><td><div class="td-ev"><div class="td-thumb">${emoji}</div><div><div class="td-en">${ev.name}</div><div class="td-el">${ev.venue}</div></div></div></td><td>${ev.date}</td><td><span class="badge bg-green">${ev.category}</span></td><td style="font-weight:600">$${ev.price}</td><td>${ev.total}</td><td style="color:var(--muted)">${ev.available}/${ev.total}</td><td><div class="act-btns"><button class="act-btn ab-e" onclick="editEvent(${ev.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="act-btn ab-d" onclick="deleteEvent(${ev.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></div></td></tr>`;}).join(''):'<tr class="empty-row"><td colspan="7">No events found.</td></tr>';['admEvBody1','admEvBody2'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=html;});}
+function filterAdmEvents(q){renderAdmEvents(q.toLowerCase());}
+
+function renderAdmBookings(){const bb=document.getElementById('admBkBody');if(!bb)return;bb.innerHTML=bookings.length?bookings.map(b=>`<tr><td style="font-weight:700;font-size:12px">${b.id}</td><td>${b.name}<br><span style="font-size:11px;color:var(--muted)">${b.email}</span></td><td>${b.event.name}</td><td style="font-size:12px">${b.seats.join(', ')}</td><td style="font-weight:700;color:var(--green)">$${b.total}</td><td style="color:var(--muted)">${b.createdAt}</td></tr>`).join(''):'<tr class="empty-row"><td colspan="6">No bookings yet.</td></tr>';}
+
+function renderAdmUsers(filter=''){const ub=document.getElementById('admUsBody');if(!ub)return;const list=filter?users.filter(u=>(u.firstName+' '+u.lastName+u.email).toLowerCase().includes(filter)):users;ub.innerHTML=list.length?list.map(u=>{const uc=bookings.filter(b=>b.userId===u.id).length;return`<tr><td><div style="display:flex;align-items:center;gap:9px"><div style="width:30px;height:30px;border-radius:50%;background:var(--green-light);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${(u.firstName[0]+u.lastName[0]).toUpperCase()}</div><span style="font-weight:600">${u.firstName} ${u.lastName}</span></div></td><td>${u.email}</td><td style="color:var(--muted)">${u.phone||'—'}</td><td><span class="badge bg-user">User</span></td><td style="color:var(--muted)">${u.joinedAt}</td><td style="font-weight:600">${uc}</td></tr>`;}).join(''):'<tr class="empty-row"><td colspan="6">No users registered yet.</td></tr>';}
+function filterAdmUsers(q){renderAdmUsers(q.toLowerCase());}
+
+function renderAdmAdmins(){const ab=document.getElementById('admAdBody');if(!ab)return;ab.innerHTML=admins.map(a=>`<tr><td><div style="display:flex;align-items:center;gap:9px"><div style="width:30px;height:30px;border-radius:50%;background:var(--gold-light);color:var(--gold-dark);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${(a.firstName[0]+(a.lastName?.[0]||'')).toUpperCase()}</div><span style="font-weight:600">${a.firstName} ${a.lastName||''}</span></div></td><td style="font-weight:600">@${a.username}</td><td style="color:var(--muted)">${a.email||'—'}</td><td><span class="badge bg-admin">${a.role}</span></td><td style="color:var(--muted)">${a.createdAt}</td><td>${a.id!==1?`<button class="act-btn ab-d" onclick="removeAdmin(${a.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button>`:'<span style="font-size:11px;color:var(--muted)">Protected</span>'}</td></tr>`).join('');}
+
+function openAddEvent(){_editEvId=null;document.getElementById('evModalTitle').textContent='Add New Event';['mName','mDate','mTime','mVenue','mPrice','mSeats'].forEach(id=>document.getElementById(id).value='');document.getElementById('mCat').value='Music';document.getElementById('evModal').classList.add('open');}
+function editEvent(id){const ev=events.find(e=>e.id===id);if(!ev)return;_editEvId=id;document.getElementById('evModalTitle').textContent='Edit Event';document.getElementById('mName').value=ev.name;document.getElementById('mDate').value=ev.rawDate;document.getElementById('mTime').value=ev.time;document.getElementById('mVenue').value=ev.venue;document.getElementById('mCat').value=ev.category;document.getElementById('mPrice').value=ev.price;document.getElementById('mSeats').value=ev.total;document.getElementById('evModal').classList.add('open');}
+function closeModal(){document.getElementById('evModal').classList.remove('open');}
+function saveEvent(){const name=document.getElementById('mName').value.trim(),date=document.getElementById('mDate').value,time=document.getElementById('mTime').value,venue=document.getElementById('mVenue').value.trim(),cat=document.getElementById('mCat').value,price=parseInt(document.getElementById('mPrice').value)||0,seats=parseInt(document.getElementById('mSeats').value)||50;if(!name||!date||!venue){toast('Please fill required fields','e');return;}const fmt=new Date(date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});if(_editEvId){const ev=events.find(e=>e.id===_editEvId),diff=seats-ev.total;Object.assign(ev,{name,date:fmt,rawDate:date,time:time||'18:00',venue,category:cat,price,total:seats,available:Math.max(0,ev.available+diff)});toast('Event updated!','s');}else{events.push({id:Date.now(),name,date:fmt,rawDate:date,time:time||'18:00',venue,category:cat,price,total:seats,available:seats,bookedSeats:[]});toast('Event added!','s');}closeModal();renderEvents(events);refreshAdmin();}
+function deleteEvent(id){if(!confirm('Delete this event?'))return;events=events.filter(e=>e.id!==id);renderEvents(events);refreshAdmin();toast('Event deleted.','i');}
+function removeAdmin(id){if(!confirm('Remove this admin?'))return;admins=admins.filter(a=>a.id!==id);renderAdmAdmins();toast('Admin removed.','i');}
+
+showPage('role');
+</script>
 </body>
 </html>
